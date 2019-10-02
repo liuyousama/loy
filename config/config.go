@@ -138,3 +138,21 @@ func (config *Config) getInt(key string) int {
 
 	return num
 }
+
+func RegisterEnv(key string)  {
+	c.registerEnv(key)
+}
+func (config *Config) registerEnv(key string)  {
+	key = config.envPrefix + key
+	value := os.Getenv(key)
+	config.envConfigs[key] = value
+}
+
+func GetEnv(key string) string {
+	return c.getEnv(key)
+}
+func (config *Config) getEnv(key string) string {
+	key = config.envPrefix + key
+	value := config.envConfigs[key]
+	return value
+}
