@@ -2,7 +2,9 @@ package config
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/pelletier/go-toml"
 	"gopkg.in/yaml.v2"
 	"io"
 	"os"
@@ -84,6 +86,17 @@ func (config *Config) unmarshalReader(r io.Reader) error {
 		if err != nil {
 			return fmt.Errorf("failed to parse the yaml file, error detail: %v", err)
 		}
+	case "json":
+		err := json.Unmarshal(buf.Bytes(), &config.configs)
+		if err != nil {
+			return fmt.Errorf("failed to parse the json file, error detail: %v", err)
+		}
+	case "toml":
+		tree, err := toml.LoadReader(buf)
+		if err != nil {
+			return fmt.Errorf("failed to parse the toml file, error detail: %v", err)
+		}
+		c.configs = tree.ToMap()
 	default:
 		return fmt.Errorf("the file type is not supported")
 	}
