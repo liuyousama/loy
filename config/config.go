@@ -8,6 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -152,6 +153,19 @@ func (config *Config) getInt(key string) int {
 	return num
 }
 
+func GetBool(key string) bool {
+	return c.getBool(key)
+}
+func (config *Config) getBool(key string) bool {
+	i := config.get(key)
+	b, ok := i.(bool)
+	if !ok {
+		return false
+	}
+
+	return b
+}
+
 func RegisterEnv(key string)  {
 	c.registerEnv(key)
 }
@@ -168,4 +182,17 @@ func (config *Config) getEnv(key string) string {
 	key = config.envPrefix + key
 	value := config.envConfigs[key]
 	return value
+}
+
+func GetEnvInt(key string) int {
+	return c.getEnvInt(key)
+}
+func (config *Config) getEnvInt(key string) int {
+	str := config.getEnv(key)
+	num, err := strconv.Atoi(str)
+	if err != nil {
+		return 0
+	}
+
+	return num
 }
