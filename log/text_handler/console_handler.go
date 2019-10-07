@@ -17,15 +17,13 @@ func (h *ConsoleHandler)LoadHandler(option HandlerOption) error {
 	return nil
 }
 
-func (*ConsoleHandler)HandleText(text string, level, minLevel int) error {
+func (*ConsoleHandler)HandleText(text string, level, minLevel int) {
 	if level > minLevel {
-		return nil
+		return
 	}
 
-	_, err := fmt.Fprintln(os.Stdout, text)
-	if err != nil {
-		return nil
-	}
-
-	return nil
+	retryExecutor(func() error {
+		_, err := fmt.Fprintln(os.Stdout, text)
+		return err
+	})
 }

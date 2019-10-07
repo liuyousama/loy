@@ -2,6 +2,7 @@ package text_generator
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -19,7 +20,7 @@ func (*PlainGenerator)Generate(tag string, content string, level string) string 
 	str := fmt.Sprintf("%s -- %s:%s:%d 【%s】%s-%s",
 		time.Now().Format("2006-01-02 15:04:05"),
 		file, fun, line,
-		level, tag, content)
+		strings.ToUpper(level), tag, content)
 
 	return str
 }

@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -42,6 +43,14 @@ func (h *FileHandler) LoadHandler(option HandlerOption) error {
 	}
 	h.outputFile = file
 
+	if strings.ToLower(strings.TrimSpace(option.RollingPolicy)) == rollingBySize {
+		h.rollingPolicy = rollingBySize
+	} else if strings.ToLower(strings.TrimSpace(option.RollingPolicy)) == rollingByTime {
+		h.rollingPolicy = rollingByTime
+	} else {
+		h.rollingPolicy = rollingBySize
+	}
+
 	h.rollingFileSize= option.RollingSize
 	h.rollingPolicy = option.RollingPolicy
 	h.rollingTimeDuration = option.RollingDuration
@@ -53,9 +62,9 @@ func (h *FileHandler) LoadHandler(option HandlerOption) error {
 	return nil
 }
 
-func (h *FileHandler) HandleText(text string, level, minLevel int) error {
+func (h *FileHandler) HandleText(text string, level, minLevel int) {
 	if level > minLevel {
-		return nil
+		return
 	}
 
 	if h.textChan == nil {
@@ -64,9 +73,9 @@ func (h *FileHandler) HandleText(text string, level, minLevel int) error {
 
 	select {
 	case h.textChan <- text:
-		return nil
+		return
 	case <-time.Tick(1 * time.Second):
-		return fmt.Errorf("handle text time out, please try to widen the length of text channel")
+		return
 	}
 
 }
@@ -152,17 +161,7 @@ func (h *FileHandler) updateLoggerFile() {
 	h.lastRollingTime = time.Now()
 }
 
-func retryExecutor(f func() error) {
-	var err error
-	for i := 0; i < maxRetryTimes; i++ {
-		err = f()
-		if err != nil {
-			continue
-		} else {
-			break
-		}
-	}
-}
+
 
 func zipFile(sourceFile *os.File) error {
 	defer sourceFile.Close()
