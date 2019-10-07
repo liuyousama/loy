@@ -13,6 +13,10 @@ type ConsoleHandler struct {
 
 }
 
+func (h *ConsoleHandler)LoadHandler(option HandlerOption) error {
+	return nil
+}
+
 func (*ConsoleHandler)HandleText(text string, level, minLevel int) error {
 	if level > minLevel {
 		return nil

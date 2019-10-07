@@ -47,6 +47,10 @@ func (h *FileHandler) LoadHandler(option HandlerOption) error {
 	h.rollingTimeDuration = option.RollingDuration
 
 	h.textChan = make(chan string, textChannelLength)
+
+	go h.handleText()
+
+	return nil
 }
 
 func (h *FileHandler) HandleText(text string, level, minLevel int) error {
