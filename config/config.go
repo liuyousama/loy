@@ -87,6 +87,7 @@ func (config *Config) unmarshalReader(r io.Reader) error {
 		if err != nil {
 			return fmt.Errorf("failed to parse the yaml file, error detail: %v", err)
 		}
+		convertMapKey(&config.configs)
 	case "json":
 		err := json.Unmarshal(buf.Bytes(), &config.configs)
 		if err != nil {
@@ -114,17 +115,22 @@ func (config *Config) get(key string) interface{} {
 	}
 
 	keyList := strings.Split(key, config.keySep)
-	configs := config.configs
+	if len(keyList) == 0 {
+		return nil
+	}
 
-	var ok bool
-	for i := 0; i < len(keyList)-1; i++ {
-		configs, ok = configs[keyList[i]].(map[string]interface{})
-		if !ok {
+	m := config.configs
+
+	for _, val := range keyList[:len(keyList)-1] {
+		face := m[val]
+		if nm, ok := face.(map[string]interface{}); ok {
+			m = nm
+		} else {
 			return nil
 		}
 	}
 
-	return configs[keyList[len(keyList)-1]]
+	return m[keyList[len(keyList)-1]]
 }
 
 func GetString(key string) string {
@@ -166,10 +172,10 @@ func (config *Config) getBool(key string) bool {
 	return b
 }
 
-func RegisterEnv(key string)  {
+func RegisterEnv(key string) {
 	c.registerEnv(key)
 }
-func (config *Config) registerEnv(key string)  {
+func (config *Config) registerEnv(key string) {
 	key = config.envPrefix + key
 	value := os.Getenv(key)
 	config.envConfigs[key] = value
@@ -195,4 +201,25 @@ func (config *Config) getEnvInt(key string) int {
 	}
 
 	return num
+}
+
+func convertMapKey(m *map[string]interface{}) {
+	for key, val := range *m {
+		if _, ok := val.(map[interface{}]interface{}); ok {
+			nm := convertOneMapKey(val.(map[interface{}]interface{}))
+			(*m)[key] = nm
+			convertMapKey(&nm)
+		} else {
+			continue
+		}
+	}
+}
+
+func convertOneMapKey(m map[interface{}]interface{}) map[string]interface{} {
+	nm := make(map[string]interface{}, 0)
+	for key, val := range m {
+		nm[key.(string)] = val
+	}
+
+	return nm
 }
