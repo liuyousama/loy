@@ -9,7 +9,7 @@ type TextGenerator interface {
 }
 
 func GetCaller() (funcName, file string, line int) {
-	pc, file, line, ok := runtime.Caller(2)
+	pc, file, line, ok := runtime.Caller(4)
 	if !ok {
 		file = "未知文件(unknown file)"
 		line = 0
