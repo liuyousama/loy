@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	textChannelLength = 128
+	textChannelLength = 12800
 	maxRetryTimes     = 3
 	fileCheckTime     = 10
 	rollingByTime     = "time"
@@ -85,13 +85,13 @@ func (h *FileHandler) handleText() {
 		select {
 		case text := <-h.textChan:
 			retryExecutor(func() error {
-				_, err := fmt.Fprintf(h.outputFile, text)
+				_, err := fmt.Fprintln(h.outputFile, text)
 				return err
 			})
 
 			h.incrCheckTimes()
-		case <-time.Tick(300 * time.Millisecond):
-			continue
+		default:
+			time.Sleep(50 * time.Microsecond)
 		}
 	}
 
@@ -129,7 +129,7 @@ func (h *FileHandler) checkFileSize() {
 		return
 	}
 
-	if h.rollingFileSize > fileStat.Size() {
+	if h.rollingFileSize < fileStat.Size() {
 		h.updateLoggerFile()
 	}
 }
@@ -145,8 +145,11 @@ func (h *FileHandler) checkFileTime() {
 }
 
 func (h *FileHandler) updateLoggerFile() {
-	filePath := h.outputFile.Name()
+	if time.Now().Before(h.lastRollingTime) {
+		time.Sleep(1 * time.Second)
+	}
 
+	filePath := h.outputFile.Name()
 	err := zipFile(h.outputFile)
 	if err != nil {
 		return
@@ -157,17 +160,16 @@ func (h *FileHandler) updateLoggerFile() {
 		return
 	}
 
+
 	h.outputFile = newFile
 	h.lastRollingTime = time.Now()
 }
-
-
 
 func zipFile(sourceFile *os.File) error {
 	defer sourceFile.Close()
 
 	source := sourceFile.Name()
-	target := fmt.Sprintf("%s.%s.zip", source, time.Now().Format("20060102150405999"))
+	target := fmt.Sprintf("%s.%s.zip", source, time.Now().Format("20060102150405"))
 	zipFile, err := os.OpenFile(target, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0440)
 	if err != nil {
 		log.Println(err)

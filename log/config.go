@@ -1,6 +1,7 @@
 package log
 
 import (
+	"github.com/liuyousama/loy/log/text_generator"
 	"github.com/liuyousama/loy/log/text_handler"
 	"strings"
 	"time"
@@ -36,10 +37,13 @@ func LoadConfig(config Config) error {
 	switch strings.ToLower(strings.TrimSpace(config.LogTextType)) {
 	case jsonTextType:
 		config.LogTextType = jsonTextType
+		l.generator = text_generator.TextGenerators[jsonTextType]
 	case plainTextType:
 		config.LogTextType = plainTextType
+		l.generator = text_generator.TextGenerators[plainTextType]
 	default:
 		config.LogTextType = plainTextType
+		l.generator = text_generator.TextGenerators[plainTextType]
 	}
 
 	levelText := strings.ToLower(strings.TrimSpace(config.LogLevel))
