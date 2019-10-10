@@ -33,11 +33,12 @@ type Config struct {
 }
 
 func LoadConfig(config Config) error {
-	if strings.ToLower(strings.TrimSpace(config.LogTextType)) == jsonTextType {
+	switch strings.ToLower(strings.TrimSpace(config.LogTextType)) {
+	case jsonTextType:
 		config.LogTextType = jsonTextType
-	} else if strings.ToLower(strings.TrimSpace(config.LogTextType)) == plainTextType {
+	case plainTextType:
 		config.LogTextType = plainTextType
-	} else {
+	default:
 		config.LogTextType = plainTextType
 	}
 
@@ -61,22 +62,22 @@ func LoadConfig(config Config) error {
 		RollingDuration:config.LogRollingDuration,
 		RollingSize:config.LogRollingSize,
 	}
-	if strings.ToLower(strings.TrimSpace(config.LogHandlerType)) == consoleHandlerType {
-		config.LogHandlerType = consoleHandlerType
+
+	config.LogHandlerType = strings.ToLower(strings.TrimSpace(config.LogHandlerType))
+	switch strings.ToLower(strings.TrimSpace(config.LogHandlerType)) {
+	case consoleHandlerType:
 		err := text_handler.Handlers["console"].LoadHandler(handlerOption)
 		if err != nil {
 			return err
 		}
 		l.handlers = []text_handler.Handler{text_handler.Handlers["console"]}
-	} else if strings.ToLower(strings.TrimSpace(config.LogHandlerType)) == fileHandlerType {
-		config.LogHandlerType = fileHandlerType
+	case fileHandlerType:
 		err := text_handler.Handlers["file"].LoadHandler(handlerOption)
 		if err != nil {
 			return err
 		}
 		l.handlers = []text_handler.Handler{text_handler.Handlers["file"]}
-	} else if strings.ToLower(strings.TrimSpace(config.LogHandlerType)) == consoleAndFileHandlerType {
-		config.LogHandlerType = consoleAndFileHandlerType
+	case consoleAndFileHandlerType:
 		err := text_handler.Handlers["console"].LoadHandler(handlerOption)
 		if err != nil {
 			return err
@@ -86,8 +87,7 @@ func LoadConfig(config Config) error {
 			return err
 		}
 		l.handlers = []text_handler.Handler{text_handler.Handlers["file"],text_handler.Handlers["console"]}
-	} else {
-		config.LogHandlerType = consoleHandlerType
+	default:
 		err := text_handler.Handlers["console"].LoadHandler(handlerOption)
 		if err != nil {
 			return err

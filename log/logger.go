@@ -97,3 +97,13 @@ func (log *logger) infof(format string, a ...interface{}) {
 		handler.HandleText(text, infoLevel, log.level)
 	}
 }
+
+func InfoWithTag(tag, text string) {
+	l.infoWithTag(tag, text)
+}
+func (log *logger) infoWithTag(tag, text string) {
+	text = log.generator.Generate(tag, text, infoLevelText)
+	for _, handler := range log.handlers {
+		handler.HandleText(text, infoLevel, log.level)
+	}
+}
