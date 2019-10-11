@@ -172,6 +172,50 @@ func (config *Config) getBool(key string) bool {
 	return b
 }
 
+func GetMapString(key string) map[string]interface{} {
+	return c.getMapString(key)
+}
+func (config *Config) getMapString(key string) map[string]interface{} {
+	i := config.get(key)
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return make(map[string]interface{}, 0)
+	}
+
+	return m
+}
+
+func GetInterfaceSlice(key string) []interface{} {
+	return c.getInterfaceSlice(key)
+}
+func (config *Config) getInterfaceSlice(key string) []interface{} {
+	i := config.get(key)
+	s, ok := i.([]interface{})
+	if !ok {
+		return make([]interface{}, 0)
+	}
+
+	return s
+}
+
+func GetStringSlice(key string) []string {
+	return c.getStringSlice(key)
+}
+func (config *Config) getStringSlice(key string) []string {
+	i := config.get(key)
+	s, ok := i.([]interface{})
+	if !ok {
+		return make([]string, 0)
+	}
+
+	slist := make([]string, 0)
+	for _, val := range s {
+		slist = append(slist, val.(string))
+	}
+
+	return slist
+}
+
 func RegisterEnv(key string) {
 	c.registerEnv(key)
 }
