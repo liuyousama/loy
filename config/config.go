@@ -114,6 +114,10 @@ func (config *Config) get(key string) interface{} {
 		return nil
 	}
 
+	if val, ok := config.envConfigs[key]; ok {
+		return val
+	}
+
 	keyList := strings.Split(key, config.keySep)
 	if len(keyList) == 0 {
 		return nil
