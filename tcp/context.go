@@ -7,6 +7,10 @@ type Context struct {
 	request *request
 }
 
+func newContext(r *request) *Context {
+	return &Context{request:r}
+}
+
 func (c *Context) Set(value interface{})  {
 	c.Value = value
 }

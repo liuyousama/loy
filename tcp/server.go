@@ -6,13 +6,16 @@ import (
 )
 
 type Server struct {
-	Addr    string
-	Network string
-	router  *Router
+	Addr           string
+	Network        string
+	worker         *worker
+	addRequestTask func(req *request)
 }
 
 func NewServer(network, addr string, router *Router) *Server {
-	return &Server{addr, network, router}
+	w := newWorker(router)
+
+	return &Server{addr, network, w, w.getAddRequestFunc()}
 }
 
 func (s *Server) start() (err error) {
