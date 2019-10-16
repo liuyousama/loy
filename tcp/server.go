@@ -8,10 +8,11 @@ import (
 type Server struct {
 	Addr    string
 	Network string
+	router  *Router
 }
 
-func NewServer(network, addr string) *Server {
-	return &Server{addr, network}
+func NewServer(network, addr string, router *Router) *Server {
+	return &Server{addr, network, router}
 }
 
 func (s *Server) start() (err error) {
