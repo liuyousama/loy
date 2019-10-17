@@ -14,6 +14,18 @@ type message struct {
 	data   []byte
 }
 
+func (m *message)GetMessageLength() uint32 {
+	return m.length
+}
+
+func (m *message)GetMessagePath() uint32 {
+	return m.pathId
+}
+
+func (m *message)GetMessageData() []byte {
+	return m.data
+}
+
 func acceptMessage(conn *net.TCPConn) (msg *message, err error) {
 	msg = &message{}
 	b := make([]byte, 8)

@@ -11,6 +11,18 @@ func newContext(r *request) *Context {
 	return &Context{request:r}
 }
 
+func (c *Context)GetMessageData() []byte {
+	return c.request.msg.data
+}
+
+func (c *Context)GetMessage() *message {
+	return c.request.msg
+}
+
+func (c *Context)Write(data []byte)  {
+	c.request.conn.write(data)
+}
+
 func (c *Context) Set(value interface{})  {
 	c.Value = value
 }
