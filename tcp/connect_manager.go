@@ -48,6 +48,10 @@ func (c *connectManager)delConnect(key interface{})  {
 	c.mu.RUnlock()
 }
 
+
+func getAllConnect() []*connect {
+	return cm.getAllConnect()
+}
 func (c *connectManager)getAllConnect() []*connect {
 	c.mu.RLock()
 

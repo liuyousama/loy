@@ -23,6 +23,40 @@ func (c *Context)Write(data []byte)  {
 	c.request.conn.write(data)
 }
 
+func (c *Context)SaveConnect(key interface{})  {
+	if key == nil {
+		return
+	}
+	
+	saveConnect(key, c.request.conn)
+}
+
+func (c *Context)Send(key interface{}, data []byte) bool {
+	connect := getConnect(key)
+	if connect == nil {
+		return false
+	}
+
+	connect.messageChan <- data
+	return true
+}
+
+func (c *Context)Broadcast(data []byte)  {
+	for _, val := range getAllConnect() {
+		val.messageChan <- data
+	}
+}
+
+func (c *Context)Close()  {
+	key := c.request.conn.key
+	if key != nil {
+		delConnect(key)
+	}
+	
+	c.request.conn.exitChan <- true
+	
+}
+
 func (c *Context) Set(value interface{})  {
 	c.Value = value
 }

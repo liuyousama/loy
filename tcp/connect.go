@@ -8,6 +8,7 @@ import (
 type connect struct {
 	conn           *net.TCPConn
 	isClosed       bool
+	key            interface{}
 	exitChan       chan bool
 	messageChan    chan []byte
 	addRequestTask func(req *request)
@@ -41,15 +42,20 @@ func (c *connect) startReader() {
 	defer func() { _ = c.conn.Close() }()
 
 	for {
-		msg, err := acceptMessage(c.conn)
-		if err != nil {
-			fmt.Println("read msg header error ", err)
-			break
+		select {
+		case <-c.exitChan:
+			return
+		default:
+			msg, err := acceptMessage(c.conn)
+			if err != nil {
+				fmt.Println("read msg header error ", err)
+				break
+			}
+
+			request := newRequesst(c, msg)
+
+			c.addRequestTask(request)
 		}
-
-		request := newRequesst(c, msg)
-
-		c.addRequestTask(request)
 	}
 }
 
