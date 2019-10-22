@@ -1,4 +1,4 @@
-package text_handler
+package log
 
 import (
 	"archive/zip"
@@ -7,67 +7,81 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
 const (
 	textChannelLength = 128
 	maxRetryTimes     = 3
-	fileCheckTime     = 10
-	rollingByTime     = "time"
-	rollingBySize     = "size"
-	kb                = 1024
-	mb                = 1024 * kb
-	gb                = 1024 * mb
+	fileCheckTime     = 15
+)
+
+type RollingPolicy uint8
+const (
+	RollingBySize RollingPolicy = 0
+	RollingByTime RollingPolicy = 1
 )
 
 type FileHandler struct {
 	outputFile          *os.File
-	textChan            chan string
-	circleCheckTimes    int8
-	lastRollingTime     time.Time
+	outputFilePath		string
 	rollingTimeDuration time.Duration
 	rollingFileSize     int64
-	rollingPolicy       string
+	rollingPolicy       RollingPolicy
+	circleCheckTimes    int8
+	lastRollingTime     time.Time
+	textChan            chan string
 }
 
+func NewFileHandler() *FileHandler {
+	h := &FileHandler{
+		rollingTimeDuration: 24 * time.Hour,
+		rollingFileSize: 1024 * 1024,
+		rollingPolicy:RollingBySize,
+	}
 
-func init()  {
-	Handlers["file"] = new(FileHandler)
+	return h
 }
 
-func (h *FileHandler) LoadHandler(option HandlerOption) error {
-	file, err := os.OpenFile(option.LogFilePath, os.O_CREATE|os.O_WRONLY, 0655)
+func (h *FileHandler) SetRollingSize(size int64) {
+	if size < 1024 * 10 {
+		size = 1024 * 10
+	}
+	h.rollingFileSize = size
+}
+
+func (h *FileHandler) SetRollingDuration(duration time.Duration) {
+	if duration < 1 * time.Hour {
+		duration = 1 * time.Hour
+	}
+	h.rollingTimeDuration = duration
+}
+
+func (h *FileHandler) SetRollingPolicy(policy RollingPolicy) {
+	if policy != RollingBySize && policy != RollingByTime {
+		policy = RollingBySize
+	}
+	h.rollingPolicy = policy
+}
+
+func (h *FileHandler) SetOutputFilePath(path string) {
+	h.outputFilePath = path
+}
+
+func (h *FileHandler) Load() error {
+	file, err := os.OpenFile(h.outputFilePath, os.O_CREATE|os.O_WRONLY, 0655)
 	if err != nil {
 		return err
 	}
 	h.outputFile = file
 
-	if strings.ToLower(strings.TrimSpace(option.RollingPolicy)) == rollingBySize {
-		h.rollingPolicy = rollingBySize
-	} else if strings.ToLower(strings.TrimSpace(option.RollingPolicy)) == rollingByTime {
-		h.rollingPolicy = rollingByTime
-	} else {
-		h.rollingPolicy = rollingBySize
-	}
-
-	h.rollingFileSize= option.RollingSize
-	h.rollingPolicy = option.RollingPolicy
-	h.rollingTimeDuration = option.RollingDuration
-
 	h.textChan = make(chan string, textChannelLength)
-
 	go h.handleText()
 
 	return nil
 }
 
-func (h *FileHandler) HandleText(text string, level, minLevel int) {
-	if level > minLevel {
-		return
-	}
-
+func (h *FileHandler) HandleText(text string) {
 	if h.textChan == nil {
 		h.textChan = make(chan string, textChannelLength)
 	}
@@ -75,8 +89,8 @@ func (h *FileHandler) HandleText(text string, level, minLevel int) {
 	select {
 	case h.textChan <- text:
 		return
-	case <-time.Tick(1 * time.Second):
-		return
+	//case <-time.Tick(1 * time.Second):
+	//	return
 	}
 
 }
@@ -98,7 +112,6 @@ func (h *FileHandler) handleText() {
 
 }
 
-
 func (h *FileHandler) incrCheckTimes() {
 	if h.circleCheckTimes < fileCheckTime {
 		h.circleCheckTimes++
@@ -110,21 +123,17 @@ func (h *FileHandler) incrCheckTimes() {
 }
 
 func (h *FileHandler) checkFile() {
-	if h.rollingPolicy == rollingByTime {
+	if h.rollingPolicy == RollingByTime {
 		h.checkFileTime()
-	} else if h.rollingPolicy == rollingBySize {
+	} else if h.rollingPolicy == RollingBySize {
 		h.checkFileSize()
 	} else {
-		h.rollingPolicy = rollingBySize
+		h.rollingPolicy = RollingBySize
 		h.checkFileSize()
 	}
 }
 
 func (h *FileHandler) checkFileSize() {
-	if h.rollingFileSize < 1*mb {
-		h.rollingFileSize = 1 * mb
-	}
-
 	fileStat, err := h.outputFile.Stat()
 	if err != nil {
 		return
@@ -136,10 +145,6 @@ func (h *FileHandler) checkFileSize() {
 }
 
 func (h *FileHandler) checkFileTime() {
-	if h.rollingTimeDuration < 24*time.Hour {
-		h.rollingTimeDuration = 24 * time.Hour
-	}
-
 	if h.lastRollingTime.Add(h.rollingTimeDuration).Before(time.Now()) {
 		h.updateLoggerFile()
 	}
@@ -214,4 +219,16 @@ func zipFile(sourceFile *os.File) error {
 		_, err = io.Copy(writer, file)
 		return err
 	})
+}
+
+func retryExecutor(f func() error) {
+	var err error
+	for i := 0; i < maxRetryTimes; i++ {
+		err = f()
+		if err != nil {
+			continue
+		} else {
+			break
+		}
+	}
 }

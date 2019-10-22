@@ -20,6 +20,6 @@ func (l Level)GetLevelText() string {
 	case FATAL:
 		return "FATAL"
 	default:
-		return "Unknow Level"
+		return "Unknown Level"
 	}
 }
