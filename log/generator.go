@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-var TextGenerators map[string]TextGenerator = make(map[string]TextGenerator, 8)
-
 type TextGenerator interface {
 	Generate(content string, level Level) string
 }
