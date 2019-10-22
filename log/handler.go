@@ -1,4 +1,4 @@
-package text_handler
+package log
 
 const (
 	FatalLevel=iota
@@ -10,8 +10,8 @@ const (
 var Handlers map[string]Handler = make(map[string]Handler, 8)
 
 type Handler interface {
-	HandleText(text string, level, minLevel int)
-	LoadHandler(option HandlerOption) error
+	HandleText(text string)
+	Load() error
 }
 
 func retryExecutor(f func() error) {

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	textChannelLength = 12800
+	textChannelLength = 128
 	maxRetryTimes     = 3
 	fileCheckTime     = 10
 	rollingByTime     = "time"
@@ -31,6 +31,7 @@ type FileHandler struct {
 	rollingFileSize     int64
 	rollingPolicy       string
 }
+
 
 func init()  {
 	Handlers["file"] = new(FileHandler)

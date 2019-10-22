@@ -1,4 +1,4 @@
-package text_generator
+package log
 
 import (
 	"os"
@@ -10,7 +10,7 @@ import (
 var TextGenerators map[string]TextGenerator = make(map[string]TextGenerator, 8)
 
 type TextGenerator interface {
-	Generate(tag, content, level string) string
+	Generate(content string, level Level) string
 }
 
 func GetCaller() (funcName, file string, line int) {
