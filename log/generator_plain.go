@@ -10,6 +10,9 @@ type PlainGenerator struct {
 
 }
 
+//type check
+var _ TextGenerator = &PlainGenerator{}
+
 func (*PlainGenerator)Generate(content string, level Level) string  {
 	fun, file, line := GetCaller()
 
@@ -19,4 +22,8 @@ func (*PlainGenerator)Generate(content string, level Level) string  {
 		file, fun, line, )
 
 	return str
+}
+
+func NewPlainGenerator() *PlainGenerator {
+	return new(PlainGenerator)
 }

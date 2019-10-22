@@ -4,7 +4,9 @@ import (
 	"fmt"
 )
 
-var l = &logger{}
+var l = &logger{
+	level:DEBUG,
+}
 
 type logger struct {
 	level     Level
@@ -26,6 +28,17 @@ func (log *logger)LoadHandler(handlers ...Handler) (err error) {
 
 func (log *logger)LoadGenerator(generator TextGenerator) {
 	log.generator = generator
+}
+
+func SetLevel(level Level) {
+	l.setLevel(level)
+}
+func (log *logger)setLevel(level Level) {
+	if level!=INFO&&level!=DEBUG&&level!=ERROR&&level!=FATAL {
+		level = DEBUG
+	}
+
+	log.level = level
 }
 
 func Fatal(text string) {

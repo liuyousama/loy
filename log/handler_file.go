@@ -10,6 +10,9 @@ import (
 	"time"
 )
 
+//type check
+var _ Handler = &FileHandler{}
+
 const (
 	textChannelLength = 128
 	maxRetryTimes     = 3
