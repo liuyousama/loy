@@ -72,7 +72,7 @@ func Error(text string)  {
 	l.error(text)
 }
 func (log *logger) error(text string) {
-	if log.level > DEBUG {
+	if log.level > ERROR {
 		return
 	}
 	text = log.generator.Generate(text, ERROR)
@@ -85,7 +85,7 @@ func Errorf(format string, a ...interface{})  {
 	l.errorf(format, a...)
 }
 func (log *logger) errorf(format string, a ...interface{}) {
-	if log.level > DEBUG {
+	if log.level > ERROR {
 		return
 	}
 	text := fmt.Sprintf(format, a...)
