@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+var _ TextGenerator = &JsonGenerator{}
+
 type JsonGenerator struct {
 }
 
@@ -21,9 +23,9 @@ func NewJsonGenerator() *JsonGenerator {
 	return new(JsonGenerator)
 }
 
-func (*JsonGenerator) generate(tag, content, level string) string {
+func (*JsonGenerator) generate(content string, level Level) string {
 	fun, file, line := getCaller()
-	j := JsonInfo{fun,file,line,level,time.Now(), content}
+	j := JsonInfo{fun,file,line,level.GetLevelText(),time.Now(), content}
 
 	b, err := json.Marshal(j)
 	if err != nil {
