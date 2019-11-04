@@ -21,8 +21,8 @@ func NewJsonGenerator() *JsonGenerator {
 	return new(JsonGenerator)
 }
 
-func (*JsonGenerator) Generate(tag, content, level string) string {
-	fun, file, line := GetCaller()
+func (*JsonGenerator) generate(tag, content, level string) string {
+	fun, file, line := getCaller()
 	j := JsonInfo{fun,file,line,level,time.Now(), content}
 
 	b, err := json.Marshal(j)

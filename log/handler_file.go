@@ -71,7 +71,7 @@ func (h *FileHandler) SetOutputFilePath(path string) {
 	h.outputFilePath = path
 }
 
-func (h *FileHandler) Load() error {
+func (h *FileHandler) load() error {
 	file, err := os.OpenFile(h.outputFilePath, os.O_CREATE|os.O_WRONLY, 0655)
 	if err != nil {
 		return err
@@ -79,12 +79,12 @@ func (h *FileHandler) Load() error {
 	h.outputFile = file
 
 	h.textChan = make(chan string, textChannelLength)
-	go h.handleText()
+	go h.handleChannel()
 
 	return nil
 }
 
-func (h *FileHandler) HandleText(text string) {
+func (h *FileHandler) handleText(text string) {
 	if h.textChan == nil {
 		h.textChan = make(chan string, textChannelLength)
 	}
@@ -98,7 +98,7 @@ func (h *FileHandler) HandleText(text string) {
 
 }
 
-func (h *FileHandler) handleText() {
+func (h *FileHandler) handleChannel() {
 	for {
 		select {
 		case text := <-h.textChan:

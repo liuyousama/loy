@@ -12,11 +12,11 @@ type ConsoleHandler struct {
 	colorOn bool
 }
 
-func (h *ConsoleHandler)Load() error {
+func (h *ConsoleHandler)load() error {
 	return nil
 }
 
-func (*ConsoleHandler)HandleText(text string) {
+func (*ConsoleHandler)handleText(text string) {
 	retryExecutor(func() error {
 		_, err := fmt.Fprintln(os.Stdout, text)
 		return err

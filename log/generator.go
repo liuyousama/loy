@@ -8,10 +8,10 @@ import (
 )
 
 type TextGenerator interface {
-	Generate(content string, level Level) string
+	generate(content string, level Level) string
 }
 
-func GetCaller() (funcName, file string, line int) {
+func getCaller() (funcName, file string, line int) {
 
 	pc, file, line, ok := runtime.Caller(4)
 	if !ok {

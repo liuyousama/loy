@@ -14,9 +14,12 @@ type logger struct {
 	handlers  []Handler
 }
 
-func (log *logger)LoadHandler(handlers ...Handler) (err error) {
+func LoadHandler(handlers ...Handler) (err error) {
+	return l.loadHandler(handlers...)
+}
+func (log *logger)loadHandler(handlers ...Handler) (err error) {
 	for _, handler := range handlers {
-		err = handler.Load()
+		err = handler.load()
 		if err != nil {
 			return err
 		}
@@ -26,7 +29,10 @@ func (log *logger)LoadHandler(handlers ...Handler) (err error) {
 	return
 }
 
-func (log *logger)LoadGenerator(generator TextGenerator) {
+func LoadGenerator(generator TextGenerator) {
+	l.loadGenerator(generator)
+}
+func (log *logger)loadGenerator(generator TextGenerator) {
 	log.generator = generator
 }
 
@@ -48,9 +54,9 @@ func (log *logger) fatal(text string) {
 	if log.level > FATAL {
 		return
 	}
-	text = log.generator.Generate(text, FATAL)
+	text = log.generator.generate(text, FATAL)
 	for _, handler := range log.handlers {
-		handler.HandleText(text)
+		handler.handleText(text)
 	}
 }
 
@@ -62,9 +68,9 @@ func (log *logger) fatalf(format string, a ...interface{}) {
 		return
 	}
 	text := fmt.Sprintf(format, a...)
-	text = log.generator.Generate(text, FATAL)
+	text = log.generator.generate(text, FATAL)
 	for _, handler := range log.handlers {
-		handler.HandleText(text)
+		handler.handleText(text)
 	}
 }
 
@@ -75,9 +81,9 @@ func (log *logger) error(text string) {
 	if log.level > ERROR {
 		return
 	}
-	text = log.generator.Generate(text, ERROR)
+	text = log.generator.generate(text, ERROR)
 	for _, handler := range log.handlers {
-		handler.HandleText(text)
+		handler.handleText(text)
 	}
 }
 
@@ -89,9 +95,9 @@ func (log *logger) errorf(format string, a ...interface{}) {
 		return
 	}
 	text := fmt.Sprintf(format, a...)
-	text = log.generator.Generate(text, ERROR)
+	text = log.generator.generate(text, ERROR)
 	for _, handler := range log.handlers {
-		handler.HandleText(text)
+		handler.handleText(text)
 	}
 }
 
@@ -102,9 +108,9 @@ func (log *logger) debug(text string) {
 	if log.level > DEBUG {
 		return
 	}
-	text = log.generator.Generate(text, DEBUG)
+	text = log.generator.generate(text, DEBUG)
 	for _, handler := range log.handlers {
-		handler.HandleText(text)
+		handler.handleText(text)
 	}
 }
 
@@ -116,9 +122,9 @@ func (log *logger) debugf(format string, a ...interface{}) {
 		return
 	}
 	text := fmt.Sprintf(format, a...)
-	text = log.generator.Generate(text, DEBUG)
+	text = log.generator.generate(text, DEBUG)
 	for _, handler := range log.handlers {
-		handler.HandleText(text)
+		handler.handleText(text)
 	}
 }
 
@@ -129,9 +135,9 @@ func (log *logger) info(text string) {
 	if log.level > INFO {
 		return
 	}
-	text = log.generator.Generate(text, INFO)
+	text = log.generator.generate(text, INFO)
 	for _, handler := range log.handlers {
-		handler.HandleText(text)
+		handler.handleText(text)
 	}
 }
 
@@ -143,8 +149,8 @@ func (log *logger) infof(format string, a ...interface{}) {
 		return
 	}
 	text := fmt.Sprintf(format, a...)
-	text = log.generator.Generate(text, INFO)
+	text = log.generator.generate(text, INFO)
 	for _, handler := range log.handlers {
-		handler.HandleText(text)
+		handler.handleText(text)
 	}
 }

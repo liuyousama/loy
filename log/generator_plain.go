@@ -13,8 +13,8 @@ type PlainGenerator struct {
 //type check
 var _ TextGenerator = &PlainGenerator{}
 
-func (*PlainGenerator)Generate(content string, level Level) string  {
-	fun, file, line := GetCaller()
+func (*PlainGenerator)generate(content string, level Level) string  {
+	fun, file, line := getCaller()
 
 	str := fmt.Sprintf("%s --【%s】%s %s:%s:%d ",
 		time.Now().Format("2006-01-02 15:04:05"),
