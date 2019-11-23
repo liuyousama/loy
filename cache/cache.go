@@ -35,6 +35,16 @@ func NewCache() *Cache {
 	return c
 }
 
+func (c *Cache)GetTTL(key string) time.Duration {
+	val := c.values[key]
+	ttl := val.dataTtl - (time.Now().Sub(val.setTime))
+	if ttl < 0 {
+		return 0
+	}
+
+	return ttl
+}
+
 func (c *Cache)StopCache() {
 	c.cancelFunc()
 }
